@@ -69,8 +69,12 @@ def test_openapi_separates_unit_01_and_02_routes() -> None:
         "/api/chat/threads",
         "/api/chat/threads/{thread_id}/messages",
     }
+    favorite_paths = {
+        "/api/favorites",
+        "/api/favorites/{place_id}",
+    }
 
-    assert unit_01_paths | unit_02_paths | landmark_paths | food_paths | auth_paths | place_paths | chat_paths == paths.keys()
+    assert unit_01_paths | unit_02_paths | landmark_paths | food_paths | auth_paths | place_paths | chat_paths | favorite_paths == paths.keys()
     assert {
         tuple(operation["tags"])
         for path in unit_01_paths
@@ -107,6 +111,11 @@ def test_openapi_separates_unit_01_and_02_routes() -> None:
         for path in chat_paths
         for operation in paths[path].values()
     } == {("Chat",)}
+    assert {
+        tuple(operation["tags"])
+        for path in favorite_paths
+        for operation in paths[path].values()
+    } == {("Favorites",)}
 
 
 def test_mock_food_plan_generation() -> None:

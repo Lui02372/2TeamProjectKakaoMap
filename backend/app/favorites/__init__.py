@@ -1,0 +1,1 @@
+"""User-scoped favorite places."""
