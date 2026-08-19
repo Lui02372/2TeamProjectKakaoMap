@@ -64,8 +64,9 @@ def test_openapi_separates_unit_01_and_02_routes() -> None:
         "/api/auth/logout",
         "/api/auth/me",
     }
+    place_paths = {"/api/places/search"}
 
-    assert unit_01_paths | unit_02_paths | landmark_paths | food_paths | auth_paths == paths.keys()
+    assert unit_01_paths | unit_02_paths | landmark_paths | food_paths | auth_paths | place_paths == paths.keys()
     assert {
         tuple(operation["tags"])
         for path in unit_01_paths
@@ -92,6 +93,11 @@ def test_openapi_separates_unit_01_and_02_routes() -> None:
         for path in food_paths
         for operation in paths[path].values()
     } == {("Food",)}
+    assert {
+        tuple(operation["tags"])
+        for path in place_paths
+        for operation in paths[path].values()
+    } == {("Places",)}
 
 
 def test_mock_food_plan_generation() -> None:

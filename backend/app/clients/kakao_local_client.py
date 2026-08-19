@@ -20,7 +20,7 @@ from app.kakao_schemas import KakaoKeywordResponse, KakaoPlaceDocument
 
 _KEYWORD_SEARCH_PATH: Final = "/v2/local/search/keyword.json"
 _RETRYABLE_STATUS_CODES: Final = {429, *range(500, 600)}
-_SUPPORTED_CATEGORY_GROUP_CODES: Final = {"AT4", "FD6"}
+_SUPPORTED_CATEGORY_GROUP_CODES: Final = {"AT4", "FD6", "CE7", ""}
 _KAKAO_LOCAL_HOST: Final = "dapi.kakao.com"
 _ALLOWED_KAKAO_NETLOCS: Final = {
     _KAKAO_LOCAL_HOST,
@@ -96,7 +96,7 @@ class KakaoLocalClient:
         if not isinstance(query, str) or not query.strip():
             raise ValueError("query must not be empty")
         if category_group_code not in _SUPPORTED_CATEGORY_GROUP_CODES:
-            raise ValueError("category_group_code must be AT4 or FD6")
+            raise ValueError("category_group_code is not supported")
         if not 1 <= size <= 15:
             raise ValueError("size must be between 1 and 15")
 
@@ -104,10 +104,11 @@ class KakaoLocalClient:
         headers = {"Authorization": f"KakaoAK {self._api_key}"}
         params = {
             "query": query.strip(),
-            "category_group_code": category_group_code,
             "size": size,
             "sort": "accuracy",
         }
+        if category_group_code:
+            params["category_group_code"] = category_group_code
 
         response: httpx.Response | None = None
         for attempt in range(self._max_retries + 1):

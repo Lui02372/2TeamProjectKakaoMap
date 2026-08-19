@@ -119,8 +119,7 @@ def test_missing_api_key_does_not_make_request() -> None:
     [
         ("", "AT4", "query must not be empty"),
         ("   ", "AT4", "query must not be empty"),
-        ("부산", "", "category_group_code must be AT4 or FD6"),
-        ("부산", "CE7", "category_group_code must be AT4 or FD6"),
+        ("부산", "XX0", "category_group_code is not supported"),
     ],
 )
 def test_invalid_search_input_does_not_make_request(

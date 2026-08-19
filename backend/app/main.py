@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.clients.kakao_local_client import KakaoLocalClient
+from app.config import settings
 from app.exceptions import TravelBackendError
 from app.landmark_schemas import ErrorDetail, ErrorResponse
 from app.routers.agent_router import agent_router, structured_output_router
@@ -16,7 +17,9 @@ from app.routers.landmark_router import landmark_router
 from app.routers.media_router import media_router
 from app.routers.agent_router_food import router
 from app.routers.auth_router import auth_router
+from app.routers.place_router import place_router
 from app.services.landmark_search_service import LandmarkSearchService
+from app.places.service import PlaceSearchService
 
 
 @asynccontextmanager
@@ -28,10 +31,14 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
         application.state.landmark_search_service = (
             LandmarkSearchService.from_settings(kakao_client)
         )
+        application.state.place_search_service = PlaceSearchService(
+            kakao_client, search_size=min(15, settings.kakao_search_size)
+        )
         try:
             yield
         finally:
             del application.state.landmark_search_service
+            del application.state.place_search_service
 
 
 def _request_id(request: Request) -> str:
@@ -117,6 +124,7 @@ def create_app() -> FastAPI:
     application.include_router(landmark_router)
     application.include_router(router)
     application.include_router(auth_router)
+    application.include_router(place_router)
     return application
 
 

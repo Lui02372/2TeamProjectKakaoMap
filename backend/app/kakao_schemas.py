@@ -3,7 +3,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 
-KakaoCategoryGroupCode = Literal["AT4", "FD6", ""]
+KakaoCategoryGroupCode = Literal["AT4", "FD6", "CE7", ""]
 
 
 class KakaoRawModel(BaseModel):
