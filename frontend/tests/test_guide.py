@@ -62,6 +62,13 @@ def test_map_html_recovers_from_slow_render_sdk_and_layout() -> None:
     assert "지도를 불러오지 못했습니다. 아래 장소 카드를 이용해 주세요." in html
 
 
+def test_map_html_bounds_kakao_maps_load_callback_wait() -> None:
+    html = generate_kakao_map_html([place()], "validKey_123")
+
+    assert "MAP_LOAD_TIMEOUT_MS=8000" in html
+    assert "Kakao map initialization timeout" in html
+
+
 def test_main_app_is_consumer_facing() -> None:
     source = (Path(__file__).resolve().parents[1] / "app.py").read_text(encoding="utf-8")
     assert "부산여행 가이드 2팀" in source

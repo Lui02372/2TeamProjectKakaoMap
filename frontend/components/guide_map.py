@@ -28,6 +28,7 @@ def generate_kakao_map_html(places: list[GuidePlace], javascript_key: str) -> st
 const places=__PLACES__;
 const SDK_URL="https://dapi.kakao.com/v2/maps/sdk.js?appkey=__KEY__&autoload=false";
 const SDK_TIMEOUT_MS=8000;
+const MAP_LOAD_TIMEOUT_MS=8000;
 const LAYOUT_TIMEOUT_MS=5000;
 const MAX_INIT_ATTEMPTS=2;
 const mapElement=document.getElementById("map");
@@ -78,6 +79,14 @@ function loadSdk(){
 
 function createMap(){
   return new Promise((resolve,reject)=>{
+    let settled=false;
+    const finish=(callback,value)=>{
+      if(settled)return;
+      settled=true;
+      clearTimeout(timer);
+      callback(value);
+    };
+    const timer=setTimeout(()=>finish(reject,new Error("Kakao map initialization timeout")),MAP_LOAD_TIMEOUT_MS);
     try{
       window.kakao.maps.load(()=>{
         try{
@@ -118,10 +127,10 @@ function createMap(){
           const observer=new ResizeObserver(relayout);
           observer.observe(mapElement);
           relayout();
-          resolve();
-        }catch(error){reject(error);}
+          finish(resolve);
+        }catch(error){finish(reject,error);}
       });
-    }catch(error){reject(error);}
+    }catch(error){finish(reject,error);}
   });
 }
 
