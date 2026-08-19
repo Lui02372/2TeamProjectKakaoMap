@@ -49,6 +49,19 @@ def test_map_serialization_escapes_untrusted_place_text() -> None:
     assert "\\u003c/script>" in html
 
 
+def test_map_html_recovers_from_slow_render_sdk_and_layout() -> None:
+    html = generate_kakao_map_html([place()], "validKey_123")
+
+    assert 'script.referrerPolicy="origin"' in html
+    assert "script.onerror" in html
+    assert "SDK_TIMEOUT_MS=8000" in html
+    assert "MAX_INIT_ATTEMPTS=2" in html
+    assert "requestAnimationFrame" in html
+    assert "ResizeObserver" in html
+    assert "map.relayout()" in html
+    assert "지도를 불러오지 못했습니다. 아래 장소 카드를 이용해 주세요." in html
+
+
 def test_main_app_is_consumer_facing() -> None:
     source = (Path(__file__).resolve().parents[1] / "app.py").read_text(encoding="utf-8")
     assert "부산여행 가이드 2팀" in source
