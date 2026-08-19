@@ -27,7 +27,32 @@ def test_parser_understands_korean_district_and_food_when_gemini_fails() -> None
     assert intent.district == "광안리"
     assert intent.category == "food"
     assert "회" in intent.keyword
-    assert warning
+    assert warning == ""
+
+
+@pytest.mark.parametrize(
+    ("message", "district", "category", "keyword"),
+    [
+        ("해운대 오션뷰 카페 추천해줘", "해운대", "cafe", "오션뷰"),
+        ("해운대 관광지 알려줘", "해운대", "attraction", ""),
+        ("서면 고기 맛집 찾아줘", "서면", "food", "고기"),
+        ("남포동 쇼핑 기념품 찾아줘", "남포", "shopping", "기념품"),
+    ],
+)
+def test_explicit_user_terms_override_incorrect_generated_intent(
+    message: str,
+    district: str,
+    category: str,
+    keyword: str,
+) -> None:
+    wrong = SearchIntent(district="기장", category="food", keyword="돼지국밥")
+
+    intent, warning = IntentService(generator=lambda *_: wrong).interpret(message, [])
+
+    assert intent.district == district
+    assert intent.category == category
+    assert intent.keyword == keyword
+    assert warning == ""
 
 
 def test_follow_up_inherits_recent_context() -> None:

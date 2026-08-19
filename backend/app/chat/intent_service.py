@@ -13,6 +13,29 @@ CATEGORY_KEYWORDS: dict[PlaceCategory, tuple[str, ...]] = {
     "shopping": ("쇼핑", "시장", "백화점", "기념품"),
     "all": (),
 }
+SEARCH_KEYWORDS = (
+    "돼지국밥", "밀면", "해산물", "고기", "회", "브런치", "디저트", "오션뷰",
+    "야경", "해수욕장", "전망대", "시장", "백화점", "기념품",
+)
+
+
+def _explicit_district(message: str) -> str:
+    return next((name for name in DISTRICTS if name in message), "")
+
+
+def _explicit_category(message: str) -> PlaceCategory | None:
+    matches = [
+        (message.rfind(word), category)
+        for category, words in CATEGORY_KEYWORDS.items()
+        for word in words
+        if word in message
+    ]
+    return max(matches, default=(-1, None), key=lambda item: item[0])[1]
+
+
+def _explicit_keyword(message: str) -> str:
+    matches = sorted((message.find(word), word) for word in SEARCH_KEYWORDS if word in message)
+    return " ".join(dict.fromkeys(word for _, word in matches))
 
 
 class IntentService:
@@ -32,35 +55,35 @@ class IntentService:
         category: PlaceCategory | None = None,
         quick_keyword: str = "",
     ) -> tuple[SearchIntent, str]:
-        warning = ""
         generated: SearchIntent | None = None
         if self.generator is not None:
             try:
                 generated = self.generator(message, recent)
             except Exception:
-                warning = "AI 해석이 잠시 어려워 질문의 키워드로 검색했어요."
+                pass
         fallback = self._parse(message, recent)
         intent = generated or fallback
+        explicit_district = _explicit_district(message)
+        explicit_category = _explicit_category(message)
+        explicit_keyword = _explicit_keyword(message)
         return SearchIntent(
-            region="부산",
-            district=district or intent.district or fallback.district,
-            category=category or intent.category or fallback.category,
-            keyword=quick_keyword or intent.keyword or fallback.keyword,
-        ), warning
+            district=district or explicit_district or intent.district or fallback.district,
+            category=category or explicit_category or intent.category or fallback.category,
+            keyword=(
+                quick_keyword
+                or explicit_keyword
+                or ("" if explicit_category is not None else intent.keyword or fallback.keyword)
+            ),
+        ), ""
 
     @staticmethod
     def _parse(message: str, recent: Sequence[SearchIntent]) -> SearchIntent:
         previous = recent[-1] if recent else SearchIntent()
-        district = next((name for name in DISTRICTS if name in message), previous.district)
-        category: PlaceCategory = previous.category
-        if category == "all":
-            category = "all"
-        for candidate, words in CATEGORY_KEYWORDS.items():
-            if any(word in message for word in words):
-                category = candidate
-                break
-        keyword_parts = [word for word in ("돼지국밥", "밀면", "해산물", "고기", "회", "브런치", "오션뷰", "야경") if word in message]
-        keyword = " ".join(keyword_parts) or previous.keyword or message.strip()
+        district = _explicit_district(message) or previous.district
+        explicit_category = _explicit_category(message)
+        category = explicit_category or previous.category
+        explicit_keyword = _explicit_keyword(message)
+        keyword = explicit_keyword or ("" if explicit_category is not None else previous.keyword or message.strip())
         return SearchIntent(district=district, category=category, keyword=keyword)
 
 

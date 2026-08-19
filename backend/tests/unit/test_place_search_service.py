@@ -1,6 +1,8 @@
 import asyncio
 from uuid import UUID
 
+import pytest
+
 from app.kakao_schemas import KakaoPlaceDocument
 from app.places.models import SearchRequest
 from app.places.service import PlaceSearchService
@@ -41,13 +43,29 @@ def test_search_builds_filter_query_and_returns_only_unique_busan_places() -> No
     assert result.places[0].longitude == 129.059
 
 
-def test_explicit_category_maps_to_kakao_group() -> None:
+@pytest.mark.parametrize(
+    ("category", "keyword", "expected_group", "expected_word"),
+    [
+        ("food", "고기", "FD6", "맛집"),
+        ("cafe", "오션뷰", "CE7", "카페"),
+        ("attraction", "야경", "AT4", "관광지"),
+        ("shopping", "기념품", "", "쇼핑"),
+    ],
+)
+def test_explicit_category_maps_to_kakao_group(
+    category: str,
+    keyword: str,
+    expected_group: str,
+    expected_word: str,
+) -> None:
     client = FakeKakao()
     service = PlaceSearchService(client, FakeRepository())
 
-    asyncio.run(service.search(SearchRequest(category="cafe", keyword="오션뷰")))
+    asyncio.run(service.search(SearchRequest(category=category, keyword=keyword)))
 
-    assert client.calls[0][1] == "CE7"
+    query, group, _ = client.calls[0]
+    assert group == expected_group
+    assert expected_word in query
 
 
 def test_kakao_http_place_url_is_normalized_to_https_before_storage() -> None:
