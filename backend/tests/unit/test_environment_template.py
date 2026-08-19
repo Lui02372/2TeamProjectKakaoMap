@@ -5,18 +5,20 @@ from app.config import Settings
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
-def _template_values() -> dict[str, str]:
+def _template_values(relative_path: str) -> dict[str, str]:
     values: dict[str, str] = {}
-    for line in (PROJECT_ROOT / ".env.example").read_text(encoding="utf-8").splitlines():
+    for line in (PROJECT_ROOT / relative_path).read_text(encoding="utf-8").splitlines():
         if line and not line.lstrip().startswith("#") and "=" in line:
             key, value = line.split("=", 1)
             values[key] = value
     return values
 
 
-def test_environment_template_contains_required_deployment_keys() -> None:
-    values = _template_values()
+def test_backend_environment_template_contains_only_backend_deployment_keys() -> None:
+    values = _template_values("backend/.env.example")
     required = {
+        "APP_ENV",
+        "LLM_PROVIDER",
         "SUPABASE_URL",
         "SUPABASE_PUBLISHABLE_KEY",
         "SUPABASE_SERVICE_ROLE_KEY",
@@ -31,13 +33,30 @@ def test_environment_template_contains_required_deployment_keys() -> None:
         "VISION_PROVIDER",
         "GEMINI_TTS_MODEL",
         "GEMINI_VISION_MODEL",
-        "KAKAO_JAVASCRIPT_KEY",
+        "OPENAI_API_KEY",
+        "GEMINI_API_KEY",
+        "GEMINI_MODEL",
+        "KAKAO_REST_API_KEY",
+        "KAKAO_LOCAL_BASE_URL",
+        "REQUEST_TIMEOUT_SECONDS",
     }
     assert required <= values.keys()
+    assert "BACKEND_API_URL" not in values
+    assert "KAKAO_JAVASCRIPT_KEY" not in values
+
+
+def test_frontend_environment_template_contains_only_frontend_keys() -> None:
+    values = _template_values("frontend/.env.example")
+    assert set(values) == {
+        "BACKEND_API_URL",
+        "KAKAO_JAVASCRIPT_KEY",
+        "REQUEST_TIMEOUT_SECONDS",
+    }
+    assert values["KAKAO_JAVASCRIPT_KEY"] == ""
 
 
 def test_environment_template_never_contains_real_secret_values() -> None:
-    values = _template_values()
+    values = _template_values("backend/.env.example")
     secrets = {
         "SUPABASE_PUBLISHABLE_KEY",
         "SUPABASE_SERVICE_ROLE_KEY",
