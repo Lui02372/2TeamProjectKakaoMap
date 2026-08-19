@@ -1,0 +1,26 @@
+{
+  "date": "2026-08-20",
+  "url": "http://127.0.0.1:8501",
+  "designScore": "B",
+  "aiSlopScore": "C",
+  "categoryGrades": {
+    "hierarchy": "B",
+    "typography": "B",
+    "spacing": "B",
+    "colorContrast": "A",
+    "interactionStates": "B",
+    "responsive": "B",
+    "contentQuality": "B",
+    "aiSlop": "C",
+    "motion": "C",
+    "performanceFeel": "B"
+  },
+  "findings": [
+    {
+      "id": "FINDING-002",
+      "title": "Kakao JavaScript SDK domain mismatch",
+      "impact": "high",
+      "category": "interactionStates"
+    }
+  ]
+}
