@@ -59,11 +59,12 @@ class PlaceSearchService:
             parsed = urlsplit(document.place_url)
             if parsed.scheme not in {"http", "https"} or parsed.hostname != "place.map.kakao.com":
                 return None
+            kakao_place_url = f"https://place.map.kakao.com{parsed.path}"
             latitude, longitude = float(document.y), float(document.x)
             GuidePlace(
                 id="00000000-0000-0000-0000-000000000000", kakao_place_id=document.id,
                 name=document.place_name, latitude=latitude, longitude=longitude,
-                kakao_place_url=document.place_url,
+                kakao_place_url=kakao_place_url,
             )
         except (TypeError, ValueError, ValidationError):
             return None
@@ -72,5 +73,5 @@ class PlaceSearchService:
             "category_name": document.category_name, "category_group_code": document.category_group_code,
             "address": document.address_name, "road_address": document.road_address_name,
             "latitude": latitude, "longitude": longitude, "phone": document.phone,
-            "kakao_place_url": document.place_url, "raw_snapshot": document.model_dump(mode="json"),
+            "kakao_place_url": kakao_place_url, "raw_snapshot": document.model_dump(mode="json"),
         }

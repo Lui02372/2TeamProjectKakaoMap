@@ -49,3 +49,12 @@ def test_explicit_category_maps_to_kakao_group() -> None:
 
     assert client.calls[0][1] == "CE7"
 
+
+def test_kakao_http_place_url_is_normalized_to_https_before_storage() -> None:
+    document = kakao("123", "본전돼지국밥")
+    document.place_url = "http://place.map.kakao.com/123"
+
+    row = PlaceSearchService._to_row(document)
+
+    assert row is not None
+    assert row["kakao_place_url"] == "https://place.map.kakao.com/123"
