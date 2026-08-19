@@ -18,7 +18,10 @@ class SupabaseChatRepository:
 
     def create_thread(self, user_id: UUID) -> ChatThread:
         result = self.client.table("chat_threads").insert({"user_id": str(user_id)}).execute()
-        return ChatThread.model_validate(result.data[0])
+        row = result.data[0]
+        return ChatThread.model_validate(
+            {field: row[field] for field in ChatThread.model_fields if field in row}
+        )
 
     def list_threads(self, user_id: UUID) -> list[ChatThread]:
         result = self.client.table("chat_threads").select("id,title,created_at,updated_at").eq("user_id", str(user_id)).order("updated_at", desc=True).execute()
@@ -38,7 +41,10 @@ class SupabaseChatRepository:
         payload = {"thread_id": str(thread_id), "role": role, "content": content, "structured_intent": intent.model_dump() if intent else None}
         result = self.client.table("chat_messages").insert(payload).execute()
         self.client.table("chat_threads").update({"updated_at": datetime.now(UTC).isoformat()}).eq("id", str(thread_id)).execute()
-        return ChatMessage.model_validate(result.data[0])
+        row = result.data[0]
+        return ChatMessage.model_validate(
+            {field: row[field] for field in ChatMessage.model_fields if field in row}
+        )
 
     def record_search(self, message_id: UUID, intent: SearchIntent, places: list[GuidePlace]) -> None:
         search = self.client.table("place_searches").insert({
