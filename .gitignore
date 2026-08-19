@@ -1,0 +1,35 @@
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+data/
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editor and OS files
+.idea/
+Thumbs.db
+.DS_Store
+
+# Runtime logs and temporary files
+*.log
+tmp/
+temp/
+
+# Local instructor-only materials
+00_course-guide/04_instructor-guide/
