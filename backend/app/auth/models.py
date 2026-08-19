@@ -9,7 +9,7 @@ from app.auth.password import normalize_username
 class SignupRequest(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
     username: str = Field(min_length=4, max_length=30, pattern=r"^[A-Za-z0-9_]+$")
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=4, max_length=128)
     display_name: str = Field(min_length=1, max_length=40)
 
     @field_validator("username")
