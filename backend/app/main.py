@@ -18,6 +18,7 @@ from app.routers.media_router import media_router
 from app.routers.agent_router_food import router
 from app.routers.auth_router import auth_router
 from app.routers.place_router import place_router
+from app.routers.chat_router import chat_router
 from app.services.landmark_search_service import LandmarkSearchService
 from app.places.service import PlaceSearchService
 
@@ -125,6 +126,7 @@ def create_app() -> FastAPI:
     application.include_router(router)
     application.include_router(auth_router)
     application.include_router(place_router)
+    application.include_router(chat_router)
     return application
 
 
