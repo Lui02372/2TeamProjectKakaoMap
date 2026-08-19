@@ -88,6 +88,21 @@ def test_search_keyword_sends_expected_request_and_returns_documents() -> None:
     asyncio.run(scenario())
 
 
+def test_search_keyword_accepts_official_non_filter_category_group_code() -> None:
+    async def scenario() -> None:
+        payload = _valid_payload()
+        payload["documents"][0]["category_group_code"] = "MT1"
+        payload["documents"][0]["category_group_name"] = "대형마트"
+
+        client, http_client = _client(lambda _: httpx.Response(200, json=payload))
+        async with http_client:
+            documents = await client.search_keyword("부산 서면 쇼핑", "", 10)
+
+        assert documents[0].category_group_code == "MT1"
+
+    asyncio.run(scenario())
+
+
 @pytest.mark.parametrize("size", [0, 16])
 def test_search_keyword_rejects_size_outside_kakao_range(size: int) -> None:
     async def scenario() -> None:
