@@ -1,4 +1,9 @@
-from app.chat.intent_service import IntentService
+from types import SimpleNamespace
+import weakref
+
+import pytest
+
+from app.chat.intent_service import IntentService, _generate_with_gemini
 from app.places.models import SearchIntent
 
 
@@ -33,3 +38,23 @@ def test_follow_up_inherits_recent_context() -> None:
     assert intent.district == "기장"
     assert intent.category == "cafe"
 
+
+@pytest.mark.filterwarnings("ignore:'_UnionGenericAlias' is deprecated:DeprecationWarning")
+def test_gemini_client_stays_alive_during_generation(monkeypatch) -> None:
+    class FakeModels:
+        def __init__(self, owner):
+            self.owner = weakref.ref(owner)
+
+        def generate_content(self, **_kwargs):
+            if self.owner() is None:
+                raise RuntimeError("client closed")
+            return SimpleNamespace(text='{"region":"부산","district":"서면","category":"food","keyword":"고기","query":""}')
+
+    class FakeClient:
+        def __init__(self, **_kwargs):
+            self.models = FakeModels(self)
+
+    monkeypatch.setattr("google.genai.Client", FakeClient)
+    monkeypatch.setattr("app.chat.intent_service.settings", SimpleNamespace(gemini_api_key="key", gemini_model="model"))
+
+    assert _generate_with_gemini("서면 고기 맛집", []).district == "서면"

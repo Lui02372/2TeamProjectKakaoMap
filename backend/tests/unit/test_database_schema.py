@@ -20,4 +20,7 @@ def test_guide_migration_contains_normalized_relationships() -> None:
     assert "primary key (user_id, place_id)" in sql
     assert "on delete restrict" in sql
     assert "user_sessions_token_expiry_idx" in sql
-
+    legacy_rename = sql.index("alter index if exists public.favorite_places_pkey")
+    new_favorites = sql.index("create table public.favorite_places")
+    assert legacy_rename < new_favorites
+    assert "legacy_favorite_places_pkey" in sql

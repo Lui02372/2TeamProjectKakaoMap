@@ -104,6 +104,15 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    @application.get("/", tags=["Service"])
+    def service_root() -> dict[str, str]:
+        return {
+            "service": "부산여행 가이드 2팀 API",
+            "status": "ok",
+            "health": "/health",
+            "docs": "/docs",
+        }
+
     @application.middleware("http")
     async def add_request_id(request: Request, call_next):
         request.state.request_id = uuid4().hex

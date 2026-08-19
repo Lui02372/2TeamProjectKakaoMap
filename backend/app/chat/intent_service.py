@@ -74,7 +74,8 @@ def _generate_with_gemini(message: str, recent: Sequence[SearchIntent]) -> Searc
         "category는 food, cafe, attraction, shopping, all 중 하나입니다.\n"
         f"최근 검색: {context}\n새 질문: {message}"
     )
-    response = genai.Client(api_key=settings.gemini_api_key).models.generate_content(
+    client = genai.Client(api_key=settings.gemini_api_key)
+    response = client.models.generate_content(
         model=settings.gemini_model,
         contents=prompt,
         config=types.GenerateContentConfig(

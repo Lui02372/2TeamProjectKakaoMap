@@ -19,6 +19,12 @@ def test_health() -> None:
     assert response.json()["default_provider"] == "mock"
 
 
+def test_root_explains_backend_instead_of_returning_not_found() -> None:
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json()["service"] == "부산여행 가이드 2팀 API"
+
+
 def test_provider_list_does_not_expose_keys() -> None:
     response = client.get("/api/providers")
     assert response.status_code == 200
@@ -73,8 +79,9 @@ def test_openapi_separates_unit_01_and_02_routes() -> None:
         "/api/favorites",
         "/api/favorites/{place_id}",
     }
+    service_paths = {"/"}
 
-    assert unit_01_paths | unit_02_paths | landmark_paths | food_paths | auth_paths | place_paths | chat_paths | favorite_paths == paths.keys()
+    assert unit_01_paths | unit_02_paths | landmark_paths | food_paths | auth_paths | place_paths | chat_paths | favorite_paths | service_paths == paths.keys()
     assert {
         tuple(operation["tags"])
         for path in unit_01_paths
@@ -116,6 +123,11 @@ def test_openapi_separates_unit_01_and_02_routes() -> None:
         for path in favorite_paths
         for operation in paths[path].values()
     } == {("Favorites",)}
+    assert {
+        tuple(operation["tags"])
+        for path in service_paths
+        for operation in paths[path].values()
+    } == {("Service",)}
 
 
 def test_mock_food_plan_generation() -> None:

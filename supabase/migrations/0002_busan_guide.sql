@@ -1,6 +1,9 @@
 -- 부산여행 가이드 2팀: custom username authentication and normalized guide data.
 -- Keep the original educational favorite table without deleting its data.
 alter table if exists public.favorite_places rename to legacy_favorite_places;
+alter index if exists public.favorite_places_pkey rename to legacy_favorite_places_pkey;
+alter index if exists public.favorite_places_user_id_kakao_place_id_key rename to legacy_favorite_places_user_kakao_key;
+alter index if exists public.favorite_places_user_created_idx rename to legacy_favorite_places_user_created_idx;
 
 create table public.app_users (
     id uuid primary key default gen_random_uuid(),
@@ -96,7 +99,7 @@ create table public.favorite_places (
     created_at timestamptz not null default now(),
     primary key (user_id, place_id)
 );
-create index favorite_places_user_created_idx on public.favorite_places (user_id, created_at desc);
+create index guide_favorite_places_user_created_idx on public.favorite_places (user_id, created_at desc);
 
 create table public.travel_plans (
     id uuid primary key default gen_random_uuid(),
