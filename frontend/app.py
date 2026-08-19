@@ -17,8 +17,14 @@ st.markdown("""
 <style>
   .stApp { background: linear-gradient(180deg, #f3fbff 0, #ffffff 38%); color: #15384a; }
   [data-testid="stSidebar"] { background: #073b4c; }
-  [data-testid="stSidebar"] * { color: #f4fbff; }
-  [data-testid="stSidebar"] .stButton button { background:#fff; color:#073b4c; border:0; font-weight:700; }
+  [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2,
+  [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4,
+  [data-testid="stSidebar"] [data-testid="stCaptionContainer"] { color:#f4fbff; }
+  [data-testid="stSidebar"] .stButton button { background:#fff; border:0; font-weight:700; }
+  [data-testid="stSidebar"] .stButton button,
+  [data-testid="stSidebar"] .stButton button * { color:#073b4c !important; }
+  [data-testid="stSidebar"] [data-baseweb="select"],
+  [data-testid="stSidebar"] [data-baseweb="select"] * { color:#073b4c !important; }
   .hero { padding:2rem 2.2rem; border-radius:24px; color:white; margin-bottom:1.2rem;
     background:linear-gradient(120deg,rgba(3,83,112,.96),rgba(0,166,166,.88)),
     radial-gradient(circle at 85% 15%,#ffd166 0,transparent 30%); box-shadow:0 16px 45px rgba(7,59,76,.18); }
@@ -111,7 +117,7 @@ def render_auth() -> None:
             with st.form("signup_form"):
                 new_username = st.text_input("사용할 아이디", placeholder="영문, 숫자, 밑줄 4~30자")
                 display_name = st.text_input("여행자 이름", placeholder="부산 탐험가")
-                new_password = st.text_input("비밀번호", type="password", help="8자 이상 입력해 주세요.")
+                new_password = st.text_input("비밀번호", type="password", help="4자 이상 입력해 주세요.")
                 password_confirm = st.text_input("비밀번호 확인", type="password")
                 joined = st.form_submit_button("계정 만들기", use_container_width=True, type="primary")
             if joined:
