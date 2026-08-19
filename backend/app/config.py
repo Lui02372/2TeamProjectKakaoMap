@@ -48,6 +48,7 @@ class Settings:
     request_timeout_seconds: float = float(
         os.getenv("REQUEST_TIMEOUT_SECONDS", "60")
     )
+    session_ttl_hours: int = int(os.getenv("SESSION_TTL_HOURS", "168"))
 
     @property
     def supabase_jwks_url(self) -> str:

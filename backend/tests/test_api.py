@@ -59,9 +59,13 @@ def test_openapi_separates_unit_01_and_02_routes() -> None:
     }
     auth_paths = {
         "/api/auth/session/verify",
+        "/api/auth/signup",
+        "/api/auth/login",
+        "/api/auth/logout",
+        "/api/auth/me",
     }
 
-    assert unit_01_paths | unit_02_paths | landmark_paths | food_paths == paths.keys()
+    assert unit_01_paths | unit_02_paths | landmark_paths | food_paths | auth_paths == paths.keys()
     assert {
         tuple(operation["tags"])
         for path in unit_01_paths
