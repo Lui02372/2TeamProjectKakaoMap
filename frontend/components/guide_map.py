@@ -22,7 +22,7 @@ def generate_kakao_map_html(places: list[GuidePlace], javascript_key: str) -> st
     if not javascript_key or not _KEY_PATTERN.fullmatch(javascript_key):
         raise ValueError("올바른 Kakao JavaScript Key가 필요합니다.")
     places_json = _serialize_places(places)
-    template = """<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    template = """<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 <style>html,body,#map{width:100%;height:100%;margin:0}#fallback{display:none;padding:20px;font-family:sans-serif}.info{padding:10px;max-width:240px;font:13px sans-serif}.info b{display:block;margin-bottom:6px;color:#073b4c}</style></head>
 <body><div id="map"></div><div id="fallback">지도를 불러오지 못했습니다. 아래 장소 카드를 이용해 주세요.</div><script>
 const places=__PLACES__;

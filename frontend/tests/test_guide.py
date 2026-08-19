@@ -69,6 +69,13 @@ def test_map_html_bounds_kakao_maps_load_callback_wait() -> None:
     assert "Kakao map initialization timeout" in html
 
 
+def test_map_html_upgrades_kakao_subresources_inside_https_iframe() -> None:
+    html = generate_kakao_map_html([place()], "validKey_123")
+
+    assert 'http-equiv="Content-Security-Policy"' in html
+    assert 'content="upgrade-insecure-requests"' in html
+
+
 def test_main_app_is_consumer_facing() -> None:
     source = (Path(__file__).resolve().parents[1] / "app.py").read_text(encoding="utf-8")
     assert "부산여행 가이드 2팀" in source
